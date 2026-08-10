@@ -1,0 +1,262 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ADAS - Driver Monitoring System</title>
+    <style>
+        /* CSS AESTHETIC - DARK MODE & GLASSMORPHISM */
+        
+        @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;500;700&family=Share+Tech+Mono&display=swap');
+        body {
+            margin: 0;
+            padding: 0;
+            background: linear-gradient(135deg, #0f172a 0%, #1e1b4b 100%);
+            color: white;
+            font-family: 'Poppins', sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+        }
+        
+        .dashboard {
+            display: grid;
+            grid-template-columns: 2fr 1fr;
+            gap: 20px;
+            width: 90%;
+            max-width: 1200px;
+        }
+        /* Glassmorphism Card Style */
+        
+        .glass-panel {
+            background: rgba(255, 255, 255, 0.03);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 20px;
+            padding: 20px;
+            box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.3);
+        }
+        
+        .video-container {
+            position: relative;
+            overflow: hidden;
+            border-radius: 15px;
+            display: flex;
+            justify-content: center;
+            background: #000;
+        }
+        
+        .video-container img {
+            width: 100%;
+            border-radius: 10px;
+        }
+        
+        .stats-container {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+        
+        .stat-box {
+            background: rgba(0, 0, 0, 0.2);
+            border-radius: 15px;
+            padding: 15px 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-left: 5px solid #10b981;
+            /* Warna hijau default */
+            transition: all 0.3s ease;
+        }
+        
+        .stat-title {
+            font-size: 0.9rem;
+            color: #94a3b8;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+        
+        .stat-value {
+            font-family: 'Share Tech Mono', monospace;
+            font-size: 1.5rem;
+            font-weight: bold;
+        }
+        
+        .header-title {
+            grid-column: span 2;
+            text-align: center;
+            margin-bottom: -10px;
+        }
+        
+        .header-title h1 {
+            font-size: 2rem;
+            margin: 0;
+            /* Versi standar untuk background gradient */
+            background: linear-gradient(to right, #38bdf8, #818cf8);
+            /* Mengatur agar background hanya memotong bentuk teks */
+            -webkit-background-clip: text;
+            background-clip: text;
+            /* Membuat warna teks menjadi transparan agar gradient-nya terlihat */
+            -webkit-text-fill-color: transparent;
+            color: transparent;
+        }
+        /* Progress Bar */
+        /* Progress Bar */
+        
+        .progress-bar-bg {
+            width: 100%;
+            background-color: rgba(255, 255, 255, 0.1);
+            border-radius: 10px;
+            margin-top: 10px;
+            height: 15px;
+            overflow: hidden;
+        }
+        
+        .progress-fill {
+            height: 100%;
+            background: #ef4444;
+            width: 0%;
+            transition: width 0.2s ease;
+        }
+        /* Warna Dinamis */
+        
+        .color-safe {
+            border-color: #10b981;
+            color: #10b981;
+        }
+        
+        .color-warning {
+            border-color: #f59e0b;
+            color: #f59e0b;
+        }
+        
+        .color-danger {
+            border-color: #ef4444;
+            color: #ef4444;
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="dashboard">
+        <div class="header-title glass-panel">
+            <h1>Advanced Driver Assistance System (ADAS)</h1>
+            <p style="color: #94a3b8; margin-top: 5px;">Computer Vision Drowsiness & Fatigue Monitoring</p>
+        </div>
+
+        <div class="glass-panel">
+            <div class="video-container">
+                <img src="/video_feed" alt="Camera Feed">
+            </div>
+
+            <div style="margin-top: 20px;">
+                <span class="stat-title">EYE CLOSED LEVEL</span>
+                <div class="progress-bar-bg">
+                    <div class="progress-fill" id="ui-progress"></div>
+                </div>
+            </div>
+        </div>
+
+        <div class="stats-container glass-panel">
+
+            <div class="stat-box" id="box-status">
+                <div class="stat-title">Driver Status</div>
+                <div class="stat-value" id="ui-status">NORMAL</div>
+            </div>
+
+            <div class="stat-box" id="box-dsi">
+                <div class="stat-title">Safety Index (DSI)</div>
+                <div class="stat-value" id="ui-dsi">SAFE</div>
+            </div>
+
+            <div class="stat-box">
+                <div class="stat-title">Attention Score</div>
+                <div class="stat-value"><span id="ui-attention">100</span>%</div>
+            </div>
+
+            <div class="stat-box">
+                <div class="stat-title">Eye Aspect Ratio</div>
+                <div class="stat-value" id="ui-ear">0.30</div>
+            </div>
+
+            <div class="stat-box" id="box-yawn">
+                <div class="stat-title">Yawning Detected</div>
+                <div class="stat-value" id="ui-yawn">NO</div>
+            </div>
+
+            <div class="stat-box">
+                <div class="stat-title">Camera FPS</div>
+                <div class="stat-value" id="ui-fps">30</div>
+            </div>
+
+        </div>
+    </div>
+
+    <script>
+        function updateDashboard() {
+            fetch('/data')
+                .then(response => response.json())
+                .then(data => {
+                    // Update Text
+                    document.getElementById('ui-status').innerText = data.status;
+                    document.getElementById('ui-ear').innerText = data.ear;
+                    document.getElementById('ui-fps').innerText = data.fps;
+                    document.getElementById('ui-attention').innerText = data.attention;
+                    document.getElementById('ui-dsi').innerText = data.dsi;
+                    document.getElementById('ui-yawn').innerText = data.yawning;
+
+                    // Update Progress Bar
+                    document.getElementById('ui-progress').style.width = data.closed_percent + "%";
+
+                    // Update Warna Box Status
+                    let boxStatus = document.getElementById('box-status');
+                    let uiStatus = document.getElementById('ui-status');
+                    if (data.status === "NORMAL") {
+                        boxStatus.style.borderLeftColor = "#10b981";
+                        uiStatus.style.color = "#10b981";
+                    } else if (data.status === "DROWSY") {
+                        boxStatus.style.borderLeftColor = "#f59e0b";
+                        uiStatus.style.color = "#f59e0b";
+                    } else {
+                        boxStatus.style.borderLeftColor = "#ef4444";
+                        uiStatus.style.color = "#ef4444";
+                    }
+
+                    // Update Warna DSI
+                    let boxDsi = document.getElementById('box-dsi');
+                    let uiDsi = document.getElementById('ui-dsi');
+                    if (data.dsi === "SAFE") {
+                        boxDsi.style.borderLeftColor = "#10b981";
+                        uiDsi.style.color = "#10b981";
+                    } else if (data.dsi === "WARNING") {
+                        boxDsi.style.borderLeftColor = "#f59e0b";
+                        uiDsi.style.color = "#f59e0b";
+                    } else {
+                        boxDsi.style.borderLeftColor = "#ef4444";
+                        uiDsi.style.color = "#ef4444";
+                    }
+
+                    // Update Warna Yawn
+                    let boxYawn = document.getElementById('box-yawn');
+                    let uiYawn = document.getElementById('ui-yawn');
+                    if (data.yawning === "YES") {
+                        boxYawn.style.borderLeftColor = "#f59e0b";
+                        uiYawn.style.color = "#f59e0b";
+                    } else {
+                        boxYawn.style.borderLeftColor = "#10b981";
+                        uiYawn.style.color = "#10b981";
+                    }
+                })
+                .catch(error => console.error("Error fetching data:", error));
+        }
+
+        // Ambil data dari Python setiap 200 milidetik
+        setInterval(updateDashboard, 200);
+    </script>
+</body>
+
+</html>
