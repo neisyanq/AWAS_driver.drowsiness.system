@@ -12,10 +12,10 @@ from flask_cors import CORS
 
 from imutils import face_utils
 
-from utils.ear import eye_aspect_ratio, mouth_aspect_ratio
-from utils.alarm import start_alarm, start_warning
+from backend.app.utils.ear import eye_aspect_ratio, mouth_aspect_ratio
+from backend.app.utils.alarm import start_alarm, start_warning
 # Fungsi draw_panel tidak dihapus importnya, tapi dimatikan di bawah agar tidak double
-from utils.ui import draw_panel 
+from backend.app.utils.ui import draw_panel 
 
 # =========================
 # INISIALISASI FLASK SERVER

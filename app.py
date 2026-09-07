@@ -10,8 +10,8 @@ from flask_cors import CORS
 from imutils import face_utils
 
 # Import modul bawaan kamu (Pastikan folder utils dan file-nya ada)
-from utils.ear import eye_aspect_ratio, mouth_aspect_ratio
-from utils.alarm import start_alarm, start_warning
+from backend.app.utils.ear import eye_aspect_ratio, mouth_aspect_ratio
+from backend.app.utils.alarm import start_alarm, start_warning
 
 # ==========================================
 # INISIALISASI FLASK SERVER
