@@ -70,6 +70,7 @@ cap.set(cv2.CAP_PROP_FRAME_HEIGHT, 600)
 system_data = {
     "status": "WAITING",
     "ear": 0.00,
+    "mar": 0.00,
     "yawning": "NO",
     "attention": 100,
     "dsi": "WAITING",
@@ -104,6 +105,7 @@ def generate_frames():
 
         status = "NORMAL"
         ear = 0
+        mar = 0
         closed_time = 0
         is_yawning = False
 
@@ -192,9 +194,6 @@ def generate_frames():
         # ========================================================
         # PERBAIKAN DI SINI: MATIKAN DRAW_PANEL AGAR TIDAK DOUBLE
         # ========================================================
-        # final_canvas = draw_panel(
-        #     frame, status, ear, closed_time, fps, int(attention_score), is_yawning, dsi_status
-        # )
         final_canvas = frame # LANGSUNG PAKAI FRAME ASLI!
 
         if time.time() - last_log_time >= 5:
@@ -204,6 +203,7 @@ def generate_frames():
         # Update JSON Data untuk endpoint API
         system_data["status"] = status
         system_data["ear"] = float(ear)
+        system_data["mar"] = float(mar)
         system_data["yawning"] = "YES" if is_yawning else "NO"
         system_data["attention"] = int(attention_score)
         system_data["dsi"] = dsi_status
